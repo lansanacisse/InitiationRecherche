@@ -1,0 +1,38 @@
+---
+title: "FregSigCom"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Algorithme FRegSigCom
+```{r}
+#Extraire les données des variables explicatives
+colonnes_a_extraire <- c("SECS", "KM", "CAD", "KPH", "HR", "ALT", "SLOPE", "TEMP")
+X <- lapply(colonnes_a_extraire, function(col) cycling[[col]])
+
+#Extraction de la variables à expliquer
+Y<-cycling$WATTS
+
+t.x <- lapply(X, function(mat) seq_len(ncol(mat)))
+t.y <- seq_len(ncol(cycling$WATTS))
+
+#Choisir les effets principaux : ici on prend toutes nos variables explicatives comme c'est le 1er modèle
+main.effect <- seq_along(colonnes_a_extraire)
+
+# Appeler la fonction avec les matrices X et t.x
+modele1<-cv.ff.interaction(X, Y, t.x = t.x, t.y=t.y,main.effect = main.effect)
+```
+
+
+
+# Calcul des prédictions pour calculer l'erreur du modèle
+```{r}
+prediction=pred.ff.interaction(modele1,  X)
+error<- mean((prediction-Y)^2) 
+print(c(" erreur =", error))
+```
+
